@@ -1,41 +1,14 @@
 #include <iostream>
 #include <vector>
+
 using namespace std;
-
-vector<int> g[8];
-int n = 0;
-
-int dfs(int v, vector<bool> &seen)
-{
-  bool end = true;
-  for (int i = 0; i < n; i++)
-  {
-    if (!seen[i] && i != v)
-      end = false;
-  }
-  if (end)
-  {
-    return 1;
-  }
-  int ans = 0;
-
-  seen[v] = true;
-  for (auto next : g[v])
-  {
-    if (seen[next])
-      continue;
-    ans += dfs(next, seen);
-  }
-
-  seen[v] = false;
-
-  return ans;
-}
 
 int main(void)
 {
-  int m = 0;
+  int n = 0, m = 0;
   cin >> n >> m;
+
+  vector<vector<int>> g(n);
 
   for (int i = 0; i < m; i++)
   {
@@ -46,7 +19,41 @@ int main(void)
     g[a].push_back(b);
     g[b].push_back(a);
   }
-  vector<bool> seen(n, false);
 
-  cout << dfs(0, seen) << endl;
+  vector<bool> seen(n);
+
+  auto dfs = [&](auto dfs, int i) -> int
+  {
+    bool ok = true;
+
+    for (int j = 0; j < n; j++)
+    {
+      if (!seen[j] && i != j)
+      {
+        ok = false;
+        break;
+      }
+    }
+
+    if (ok)
+      return 1;
+
+    if (seen[i])
+      return 0;
+
+    int ans = 0;
+    seen[i] = true;
+
+    for (auto next : g[i])
+    {
+      ans += dfs(dfs, next);
+    }
+
+    seen[i] = false;
+    return ans;
+  };
+
+  cout << dfs(dfs, 0) << endl;
+
+  return 0;
 }
